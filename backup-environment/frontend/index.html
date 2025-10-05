@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Earth Intelligence Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nasa-blue: #0B3D91;
+            --nasa-red: #FC3D21;
+            --space-dark: #0a0a0a;
+            --cosmic-purple: #6B46C1;
+            --earth-green: #10B981;
+            --solar-orange: #F59E0B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, var(--space-dark) 0%, var(--nasa-blue) 50%, var(--cosmic-purple) 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .navbar {
+            background: rgba(11, 61, 145, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--nasa-red);
+        }
+
+        .navbar-brand {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--nasa-red) !important;
+            transform: translateY(-2px);
+        }
+
+        .hero-section {
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--nasa-red), var(--solar-orange), var(--earth-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(252, 61, 33, 0.5)); }
+            to { filter: drop-shadow(0 0 30px rgba(252, 61, 33, 0.8)); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .live-data-banner {
+            background: linear-gradient(90deg, var(--nasa-red), var(--solar-orange));
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .module-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .module-card:hover::before {
+            left: 100%;
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--nasa-red);
+            box-shadow: 0 20px 40px rgba(252, 61, 33, 0.3);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--nasa-red), var(--solar-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .real-time-data {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--earth-green);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .data-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .btn-nasa {
+            background: linear-gradient(45deg, var(--nasa-red), var(--solar-orange));
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-nasa:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(252, 61, 33, 0.4);
+            color: white;
+        }
+
+        .earth-visualization {
+            width: 100%;
+            height: 500px;
+            border-radius: 20px;
+            border: 2px solid var(--nasa-blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--nasa-red);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .nasa-logo {
+            width: 50px;
+            height: 50px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23FC3D21"/><text x="50" y="60" text-anchor="middle" fill="white" font-family="Arial" font-size="20" font-weight="bold">NASA</text></svg>');
+            background-size: contain;
+        }
+
+        /* Leaflet Layer Control Styling */
+        .leaflet-control-layers {
+            background: rgba(11, 61, 145, 0.95) !important;
+            border: 2px solid var(--nasa-red) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+            color: white !important;
+            font-family: 'Exo 2', sans-serif !important;
+            min-width: 200px !important;
+        }
+        
+        .leaflet-control-layers-expanded {
+            padding: 15px !important;
+        }
+        
+        .leaflet-control-layers-base label,
+        .leaflet-control-layers-overlays label {
+            color: white !important;
+            font-weight: 500 !important;
+            margin-bottom: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        
+        .leaflet-control-layers-separator {
+            border-top: 1px solid var(--nasa-red) !important;
+            margin: 10px 0 !important;
+        }
+        
+        .leaflet-control-layers input[type="radio"],
+        .leaflet-control-layers input[type="checkbox"] {
+            margin-right: 8px !important;
+            transform: scale(1.2) !important;
+        }
+        
+        .leaflet-control-layers-toggle {
+            background: rgba(11, 61, 145, 0.95) !important;
+            border: 2px solid var(--nasa-red) !important;
+            border-radius: 5px !important;
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .leaflet-control-layers-toggle:hover {
+            background: rgba(252, 61, 33, 0.9) !important;
+        }
+
+        .dropdown-menu {
+            background: rgba(11, 61, 145, 0.95) !important;
+            border: 1px solid var(--nasa-red) !important;
+            border-radius: 10px !important;
+        }
+        
+        .dropdown-item {
+            color: white !important;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(252, 61, 33, 0.2) !important;
+            color: var(--nasa-red) !important;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .module-card { padding: 20px; }
+            .leaflet-control-layers {
+                min-width: 180px !important;
+                font-size: 14px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <div class="nasa-logo d-inline-block me-2"></div>
+                NASA EARTH INTELLIGENCE
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#live-data">Live Data</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#modules">Modules</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#earth-view">Earth View</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#alerts">Alerts</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">EARTH INTELLIGENCE PLATFORM</h1>
+            <p class="hero-subtitle">Real-time NASA satellite data for planetary health monitoring</p>
+            <div class="live-data-banner">
+                <i class="fas fa-satellite"></i> LIVE DATA STREAMING FROM NASA SATELLITES
+                <span class="loading-spinner ms-2"></span>
+            </div>
+        </div>
+    </section>
+
+    <section id="live-data" class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="earth-visualization" id="earthMap"></div>
+                </div>
+                <div class="col-md-4">
+                    <div class="real-time-data">
+                        <h4><i class="fas fa-chart-line"></i> Real-time Metrics</h4>
+                        <div class="data-metric">
+                            <span>Global CO₂ Level</span>
+                            <span class="metric-value" id="co2Level">Loading...</span>
+                        </div>
+                        <div class="data-metric">
+                            <span>Active Fires</span>
+                            <span class="metric-value" id="activeFires">Loading...</span>
+                        </div>
+                        <div class="data-metric">
+                            <span>Sea Level</span>
+                            <span class="metric-value" id="seaLevel">Loading...</span>
+                        </div>
+                        <div class="data-metric">
+                            <span>Ozone Layer</span>
+                            <span class="metric-value" id="ozoneLevel">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="modules" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" style="font-family: 'Orbitron', monospace;">NASA DATA MODULES</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="module-card" onclick="loadNASAModule('modis')">
+                        <div class="module-icon"><i class="fas fa-leaf"></i></div>
+                        <h4>MODIS Vegetation</h4>
+                        <p>Real-time vegetation health using MODIS NDVI data</p>
+                        <button class="btn btn-nasa">Access MODIS Data</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="module-card" onclick="loadNASAModule('firms')">
+                        <div class="module-icon"><i class="fas fa-fire"></i></div>
+                        <h4>FIRMS Fire Data</h4>
+                        <p>Active fire detection from NASA FIRMS satellite system</p>
+                        <button class="btn btn-nasa">Access FIRMS Data</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="module-card" onclick="loadNASAModule('grace')">
+                        <div class="module-icon"><i class="fas fa-tint"></i></div>
+                        <h4>GRACE Water Data</h4>
+                        <p>Groundwater monitoring using GRACE satellite measurements</p>
+                        <button class="btn btn-nasa">Access GRACE Data</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="module-card" onclick="loadNASAModule('vegetation')">
+                        <div class="module-icon"><i class="fas fa-seedling"></i></div>
+                        <h4>Green Vegetation Monitor</h4>
+                        <p>Global vegetation health monitoring and AI-powered vegetable disease detection</p>
+                        <button class="btn btn-nasa">Access Vegetation Data</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="module-card" onclick="loadNASAModule('mentalhealth')">
+                        <div class="module-icon"><i class="fas fa-brain"></i></div>
+                        <h4>Mental Wellness Center</h4>
+                        <p>AI-powered mood analysis with personalized yoga and meditation exercises</p>
+                        <button class="btn btn-nasa">Access Wellness Center</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="module-card coming-soon">
+                        <div class="module-icon"><i class="fas fa-users"></i></div>
+                        <h4>Citizen Engagement Hub</h4>
+                        <p class="text-muted">Report issues, get alerts, participate in challenges, and use AI trash identifier</p>
+                        <button class="btn btn-secondary" disabled>Coming Soon</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="module-card coming-soon">
+                        <div class="module-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h4>Disaster Management</h4>
+                        <p class="text-muted">NASA satellite-based early warning system for natural disasters and emergency response</p>
+                        <button class="btn btn-secondary" disabled>Coming Soon</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="nasaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="background: rgba(10, 10, 10, 0.95); border: 1px solid var(--nasa-red);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--nasa-red);">
+                    <h5 class="modal-title" id="nasaModalTitle">NASA Data Module</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="nasaModalBody">
+                    <div class="text-center">
+                        <div class="loading-spinner"></div>
+                        <p>Loading NASA data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
+    <script src="app.js?v=2.1"></script>
+</body>
+</html>

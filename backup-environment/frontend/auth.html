@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Earth Intelligence - Authentication</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nasa-blue: #0B3D91;
+            --nasa-red: #FC3D21;
+            --space-dark: #0a0a0a;
+            --cosmic-purple: #6B46C1;
+            --earth-green: #10B981;
+            --solar-orange: #F59E0B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: radial-gradient(circle at center, var(--space-dark) 0%, var(--nasa-blue) 70%, var(--cosmic-purple) 100%);
+            color: white;
+            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .rotating-globe {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            margin: -250px 0 0 -250px;
+            border-radius: 50%;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/1024px-The_Earth_seen_from_Apollo_17.jpg');
+            background-size: cover;
+            background-position: center;
+            animation: rotateEarth 60s linear infinite;
+            opacity: 0.7;
+            z-index: -2;
+            filter: brightness(1.05) contrast(1.05);
+        }
+        
+
+        
+        @keyframes rotateEarth {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .auth-card {
+                padding: 30px 20px;
+                max-width: 90%;
+            }
+            
+            .auth-title {
+                font-size: 1.8rem;
+            }
+            
+            .rotating-globe {
+                width: 350px;
+                height: 350px;
+                margin: -175px 0 0 -175px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 20px 15px;
+                max-width: 95%;
+            }
+            
+            .auth-title {
+                font-size: 1.5rem;
+            }
+            
+            .rotating-globe {
+                width: 300px;
+                height: 300px;
+                margin: -150px 0 0 -150px;
+            }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -3;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .auth-card {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .nasa-logo {
+            width: 100px;
+            height: 80px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 0 auto 20px;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        .auth-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--nasa-red), var(--solar-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-control {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            color: white;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-control:focus {
+            background: transparent;
+            border-color: var(--nasa-red);
+            box-shadow: 0 0 0 0.2rem rgba(252, 61, 33, 0.4);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-nasa {
+            background: linear-gradient(45deg, var(--nasa-red), var(--solar-orange));
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nasa:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(252, 61, 33, 0.4);
+            color: white;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .auth-switch a {
+            color: var(--nasa-red);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch a:hover {
+            color: var(--solar-orange);
+        }
+
+        .form-label {
+            color: white;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .alert {
+            background: rgba(252, 61, 33, 0.2);
+            border: 1px solid var(--nasa-red);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="rotating-globe"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="nasa-logo"></div>
+            <h1 class="auth-title">EARTH INTELLIGENCE</h1>
+            <p class="auth-subtitle">Access NASA satellite data platform</p>
+
+            <div id="alertContainer"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" style="display: block;">
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-nasa" id="loginBtn">
+                    <i class="fas fa-rocket me-2"></i>Launch Mission
+                </button>
+                <div class="auth-switch">
+                    Don't have an account? <a href="#" onclick="switchToSignup()">Join the Mission</a>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" style="display: none;">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="signupName" placeholder="Enter your full name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="signupEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+                <button type="submit" class="btn btn-nasa" id="signupBtn">
+                    <i class="fas fa-user-astronaut me-2"></i>Join Mission
+                </button>
+                <div class="auth-switch">
+                    Already have an account? <a href="#" onclick="switchToLogin()">Launch Mission</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

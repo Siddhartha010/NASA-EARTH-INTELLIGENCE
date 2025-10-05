@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: healthy_city_db
+      POSTGRES_USER: healthy_city_user
+      POSTGRES_PASSWORD: healthy_city_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - healthy_city_network
+
+  # Redis Cache
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - healthy_city_network
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://healthy_city_user:healthy_city_pass@postgres:5432/healthy_city_db
+      - REDIS_URL=redis://redis:6379
+      - NASA_API_KEY=${NASA_API_KEY}
+      - EARTHDATA_USERNAME=${EARTHDATA_USERNAME}
+      - EARTHDATA_PASSWORD=${EARTHDATA_PASSWORD}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - ./modules:/app/modules
+      - ./config:/app/config
+    networks:
+      - healthy_city_network
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - healthy_city_network
+
+  # Celery Worker for Background Tasks
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: celery -A backend.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://healthy_city_user:healthy_city_pass@postgres:5432/healthy_city_db
+      - REDIS_URL=redis://redis:6379
+      - NASA_API_KEY=${NASA_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - ./modules:/app/modules
+      - ./config:/app/config
+    networks:
+      - healthy_city_network
+
+  # Celery Beat Scheduler
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: celery -A backend.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://healthy_city_user:healthy_city_pass@postgres:5432/healthy_city_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+      - ./modules:/app/modules
+    networks:
+      - healthy_city_network
+
+volumes:
+  postgres_data:
+
+networks:
+  healthy_city_network:
+    driver: bridge
