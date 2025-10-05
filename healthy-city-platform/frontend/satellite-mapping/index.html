@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Satellite Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="map"></div>
+    <div class="controls">
+        <div class="control-group">
+            <h4>Base Maps</h4>
+            <select id="baseMapSelect">
+                <option value="satellite">NASA Satellite</option>
+                <option value="terrain">Terrain</option>
+                <option value="street">Street Map</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <h4>NASA Data Overlays</h4>
+            <div class="overlay-controls">
+                <label><input type="checkbox" id="aerosolOverlay"> Aerosol Optical Depth</label>
+                <label><input type="checkbox" id="vegetationOverlay"> Vegetation Index</label>
+                <label><input type="checkbox" id="temperatureOverlay"> Land Surface Temperature</label>
+                <label><input type="checkbox" id="precipitationOverlay"> Precipitation</label>
+                <label><input type="checkbox" id="pollutionOverlay"> Air Pollution (NO2)</label>
+                <label><input type="checkbox" id="riversOverlay"> Major Rivers</label>
+                <label><input type="checkbox" id="damsOverlay"> Dams & Reservoirs</label>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <h4>Weather Data (OpenWeather)</h4>
+            <div class="overlay-controls">
+                <label><input type="checkbox" id="cloudsOverlay"> Clouds</label>
+                <label><input type="checkbox" id="rainOverlay"> Rain</label>
+                <label><input type="checkbox" id="windOverlay"> Wind Speed</label>
+                <label><input type="checkbox" id="tempOverlay"> Temperature</label>
+                <label><input type="checkbox" id="labelsOverlay"> City Labels</label>
+                <label><input type="checkbox" id="hotelsOverlay"> Nearby Hotels</label>
+                <label><input type="checkbox" id="restaurantsOverlay"> Nearby Restaurants</label>
+                <label><input type="checkbox" id="worldHotelsOverlay"> World Famous Hotels</label>
+                <label><input type="checkbox" id="worldRestaurantsOverlay"> World Famous Restaurants</label>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <h4>Food Systems Data</h4>
+            <div class="overlay-controls">
+                <label><input type="checkbox" id="foodDesertsOverlay"> Food Deserts</label>
+                <label><input type="checkbox" id="urbanFarmingOverlay"> Urban Farming Potential</label>
+                <label><input type="checkbox" id="foodWasteOverlay"> Food Waste Hotspots</label>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <h4>Search Location</h4>
+            <input type="text" id="searchInput" placeholder="Enter country/city name">
+            <button id="searchBtn">Search</button>
+        </div>
+        
+        <div class="control-group">
+            <button id="locBtn">📍 My Location</button>
+            <button id="resetBtn">Reset View</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
