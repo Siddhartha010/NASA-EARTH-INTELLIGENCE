@@ -1,5 +1,5 @@
-// satellite-mapping script.js
-// Initialize map
+// Replaced script.js: cleaned and corrected version of user-provided satellite mapping code
+// Initialize map with optimized settings
 const map = L.map('map', {
     zoomControl: true,
     scrollWheelZoom: true,
@@ -15,16 +15,16 @@ const map = L.map('map', {
     maxBoundsViscosity: 0.5
 }).setView([20, 0], 3);
 
-// Use fixed date for NASA GIBS layers
+// Use fixed date for reliable NASA GIBS data
 const dateStr = '2024-01-15';
 
-// OpenWeatherMap API key (if you have one, replace here)
+// OpenWeatherMap API key (replace with your key or proxy server)
 const owmApiKey = '28936e2becfb0adfc041178892f4ac92';
 
 // Satellite labels group
 const satelliteLabels = L.layerGroup();
 
-// Data sets (countries, states, rivers, dams, cities, etc.)
+// Data sets
 const countries = [
     {name: 'United States', lat: 39.8283, lng: -98.5795},
     {name: 'Canada', lat: 56.1304, lng: -106.3468},
@@ -117,9 +117,7 @@ function makeLabelHtml(text, style) {
 // Add country labels
 countries.forEach(country => {
     const html = makeLabelHtml(country.name, 'background: rgba(255,255,255,0.9); padding: 3px 8px; border-radius: 4px; font-size: 14px; font-weight: bold; color: #333; border: 1px solid #666;');
-    L.marker([country.lat, country.lng], {
-        icon: L.divIcon({ className: 'country-label', html: html, iconSize: [100,25], iconAnchor: [50,12] })
-    }).addTo(satelliteLabels);
+    L.marker([country.lat, country.lng], { icon: L.divIcon({ className: 'country-label', html: html, iconSize: [100,25], iconAnchor: [50,12] }) }).addTo(satelliteLabels);
 });
 
 // small city labels
@@ -172,10 +170,10 @@ const overlayLayers = {
     pollution: L.tileLayer('https://map1.vis.earthdata.nasa.gov/wmts-webmerc/OMI_Nitrogen_Dioxide_Tropo_Column/default/2024-01-15/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png', { attribution: 'NASA GIBS - NO2', opacity:0.6, maxZoom:8 }),
     rivers: L.layerGroup(),
     dams: L.layerGroup(),
-    clouds: L.tileLayer(`https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=${owmApiKey}`, { attribution: 'OpenWeatherMap - Clouds', opacity:0.6, maxZoom:18 }),
-    rain: L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${owmApiKey}`, { attribution: 'OpenWeatherMap - Rain', opacity:0.7, maxZoom:18 }),
-    wind: L.tileLayer(`https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${owmApiKey}`, { attribution: 'OpenWeatherMap - Wind', opacity:0.6, maxZoom:18 }),
-    temp: L.tileLayer(`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${owmApiKey}`, { attribution: 'OpenWeatherMap - Temperature', opacity:0.6, maxZoom:18 }),
+    clouds: L.tileLayer('https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=' + owmApiKey, { attribution: 'OpenWeatherMap - Clouds', opacity:0.6, maxZoom:18 }),
+    rain: L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=' + owmApiKey, { attribution: 'OpenWeatherMap - Rain', opacity:0.7, maxZoom:18 }),
+    wind: L.tileLayer('https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=' + owmApiKey, { attribution: 'OpenWeatherMap - Wind', opacity:0.6, maxZoom:18 }),
+    temp: L.tileLayer('https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=' + owmApiKey, { attribution: 'OpenWeatherMap - Temperature', opacity:0.6, maxZoom:18 }),
     labels: L.layerGroup(),
     foodDeserts: L.layerGroup(),
     urbanFarming: L.layerGroup(),
